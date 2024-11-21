@@ -11,6 +11,12 @@ app.use(cors()); // allow access from out side the server
 // http://localhost:5000/api/users/createUser
 // Explain: /api/users/ => main Url and every thing after that will read it from file who required it
 
+var cron = require("node-cron");
+
+cron.schedule("* * * * *", () => {
+  console.log("running a task every minute");
+});
+
 app.use("/api/users", require("./routes/users.js"));
 app.use("/api/profiles", require("./routes/profiles.js"));
 app.use("/api/posts", require("./routes/posts.js"));
