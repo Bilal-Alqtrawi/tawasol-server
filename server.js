@@ -1,6 +1,8 @@
 const cors = require("cors"); // Library allow to access to server side from another out of server side
 const express = require("express");
 const connectDB = require("./config/db");
+const path = require("path");
+const fs = require("fs");
 
 const app = express();
 app.use(express.json()); // Parese Request From Client
@@ -15,7 +17,22 @@ app.use("/api/posts", require("./routes/posts.js"));
 connectDB();
 
 // app.use(express.static(__dirname + "/public"));
-app.use("/images", express.static("public/images"));
+// app.use("/images", express.static("public/images"));
+app.use("/images", (res, req) => {
+  const imagePath = path.join(__dirname, "public","images", req.path);
+  const defaultImagePath = path.join(__dirname, "public", "images", "default.png"); // مسار الصورة الافتراضية
+
+  fs.access(imagePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      // إذا لم تكن الصورة موجودة، أرسل الصورة الافتراضية
+      res.sendFile(defaultImagePath);
+    } else {
+      // إذا كانت الصورة موجودة، أرسلها
+      res.sendFile(imagePath);
+    }
+  })
+
+});
 
 // Create Get API
 // When call this API Will
