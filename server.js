@@ -18,9 +18,14 @@ connectDB();
 
 // app.use(express.static(__dirname + "/public"));
 // app.use("/images", express.static("public/images"));
-app.use("/images", (res, req) => {
-  const imagePath = path.join(__dirname, "public","images", req.path);
-  const defaultImagePath = path.join(__dirname, "public", "images", "default.png"); // مسار الصورة الافتراضية
+app.use("/images", (req, res) => {
+  const imagePath = path.join(__dirname, "public", "images", req.path);
+  const defaultImagePath = path.join(
+    __dirname,
+    "public",
+    "images",
+    "default.png"
+  ); // مسار الصورة الافتراضية
 
   fs.access(imagePath, fs.constants.F_OK, (err) => {
     if (err) {
@@ -30,8 +35,7 @@ app.use("/images", (res, req) => {
       // إذا كانت الصورة موجودة، أرسلها
       res.sendFile(imagePath);
     }
-  })
-
+  });
 });
 
 // Create Get API
