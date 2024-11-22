@@ -14,7 +14,6 @@ app.use(cors()); // allow access from out side the server
 var cron = require("node-cron");
 
 cron.schedule("* * * * *", () => {
-  console.log("Cron job running... but it does nothing right now");
   console.log("running a task every minute");
 });
 

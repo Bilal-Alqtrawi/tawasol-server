@@ -168,7 +168,6 @@ router.post("/upload", auth, async (req, res) => {
         res.status(500).send(`Server Error: ${err}`);
       } else {
         try {
-          // res.status(200).json({ msg: "Image uploaded successfully", imagePath });
           res.status(200).send(req.user.id);
         } catch (err) {
           console.log(err);
