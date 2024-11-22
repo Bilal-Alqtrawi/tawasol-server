@@ -14,7 +14,7 @@ app.use(cors()); // allow access from out side the server
 var cron = require("node-cron");
 
 cron.schedule("* * * * *", () => {
-  console.log("Cron job running... but it does nothing right now");
+  console.log("running a task every minute");
 });
 
 app.use("/api/users", require("./routes/users.js"));
@@ -22,13 +22,12 @@ app.use("/api/profiles", require("./routes/profiles.js"));
 app.use("/api/posts", require("./routes/posts.js"));
 connectDB();
 
-
-app.use(express.static(__dirname + "/public"));
-
+// app.use(express.static(__dirname + "/public"));
 // app.use("/images", express.static("public/images"));
+
 // app.use("/images", express.static(path.join(__dirname, "public", "images")));
 
-app.use("/images", (req, res) => {
+/* app.use("/images", (req, res) => {
   const imagePath = path.join(__dirname, "public", "images", req.path);
   const defaultImagePath = path.join(
     __dirname,
@@ -46,7 +45,7 @@ app.use("/images", (req, res) => {
       res.sendFile(imagePath);
     }
   });
-});
+}); */
 
 // Create Get API
 // When call this API Will

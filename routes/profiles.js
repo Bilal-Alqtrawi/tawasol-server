@@ -1,11 +1,13 @@
 const express = require("express");
-const { auth, upload } = require("../utils/index");
+const { auth } = require("../utils/index");
+const upload = require("../utils/multerConfig");
 const router = express.Router();
 const { check, validationResult } = require("express-validator");
 const normalize = require("normalize-url");
 const Profile = require("../models/Profile");
 const User = require("../models/User");
 const Post = require("../models/Post");
+
 /* 
 1.  POST /profiles (API create Or Update FOR Profile)
 2.  GET /profiles/me (return current profile to current user)
@@ -161,15 +163,16 @@ router.post("/upload", auth, async (req, res) => {
   try {
     console.log("inside upload");
     // multer give us this property for upload with 3 Params
-    upload(req, res, async (err) => {
+    upload.single("image")(req, res, async (err) => {
       if (err) {
         console.log("Error:" + err);
         res.status(500).send(`Server Error: ${err}`);
       } else {
         try {
           res.status(200).send(req.user.id);
-        } catch(err) {
+        } catch (err) {
           console.log(err);
+          res.status(500).send("Error while processing the image upload");
         }
       }
     });
@@ -178,8 +181,6 @@ router.post("/upload", auth, async (req, res) => {
     res.status(500).send(err.message);
   }
 });
-
-
 
 router.put(
   "/experience",
