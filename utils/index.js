@@ -1,7 +1,10 @@
 const jwt = require("jsonwebtoken");
 const config = require("config");
+const multer = require("multer");
+
 
 // to save data in server from client when he sent it
+
 
 const auth = (req, res, next) => {
   // Get The Token From Reqest Header
@@ -38,7 +41,7 @@ const auth = (req, res, next) => {
 };
 
 // To save file from client (dis=> file from client,)
-/* const storage = multer.diskStorage({
+const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     // (null حسب الدوكيمنتيشنو, "path of folder will download  inside him files")
     cb(null, "public/images");
@@ -48,7 +51,8 @@ const auth = (req, res, next) => {
     cb(null, `${req.user.id}`);
   },
 });
-*/
-// const upload = multer({ storage: storage }).single("file");
 
-module.exports = { auth };
+
+const upload = multer({ storage: storage }).single("file");
+
+module.exports = { auth, upload, uploadToImgur };

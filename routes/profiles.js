@@ -1,6 +1,5 @@
 const express = require("express");
-const { auth } = require("../utils/index");
-const upload = require("../utils/multerConfig");
+const { auth, upload } = require("../utils/index");
 const router = express.Router();
 const { check, validationResult } = require("express-validator");
 const normalize = require("normalize-url");
@@ -163,12 +162,13 @@ router.post("/upload", auth, async (req, res) => {
   try {
     console.log("inside upload");
     // multer give us this property for upload with 3 Params
-    upload.single("image")(req, res, async (err) => {
+    upload(req, res, async (err) => {
       if (err) {
         console.log("Error:" + err);
         res.status(500).send(`Server Error: ${err}`);
       } else {
         try {
+          // res.status(200).json({ msg: "Image uploaded successfully", imagePath });
           res.status(200).send(req.user.id);
         } catch (err) {
           console.log(err);
