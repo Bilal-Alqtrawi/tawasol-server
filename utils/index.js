@@ -2,9 +2,7 @@ const jwt = require("jsonwebtoken");
 const config = require("config");
 const multer = require("multer");
 
-
 // to save data in server from client when he sent it
-
 
 const auth = (req, res, next) => {
   // Get The Token From Reqest Header
@@ -52,7 +50,6 @@ const storage = multer.diskStorage({
   },
 });
 
-
 const upload = multer({ storage: storage }).single("file");
 
-module.exports = { auth, upload, uploadToImgur };
+module.exports = { auth, upload };
