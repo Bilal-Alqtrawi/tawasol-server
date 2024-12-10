@@ -182,11 +182,25 @@ router.delete("/", auth, async (req, res) => {
 // });
 
 router.post("/upload", auth, async (req, res) => {
+  if (!req.files || !req.files.image) {
+    return res.status(400).send({ msg: "No Image file uploaded." });
+  }
   const file = req.files.image;
   try {
     console.log("inside upload");
 
     const result = await cloudinary.uploader.upload(file.path);
+
+    const profile = await Profile.findOneAndUpdate(
+      { user: req.user.id },
+      { $set: { avatar: result.secure_url } },
+      { new: true }
+    );
+
+    if (!profile) {
+      return res.status(404).send({ msg: "Profile not found for the user." });
+    }
+
     res.status(200).json({ url: result.secure_url });
   } catch (err) {
     console.error(err.message);

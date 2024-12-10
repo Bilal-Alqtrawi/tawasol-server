@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const config = require("config");
-const multer = require("multer");
+// const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 
 // to save data in server from client when he sent it
@@ -40,16 +40,16 @@ const auth = (req, res, next) => {
 };
 
 // To save file from client (dis=> file from client,)
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    // (null حسب الدوكيمنتيشنو, "path of folder will download  inside him files")
-    cb(null, "public/images");
-  },
-  filename: (req, file, cb) => {
-    // name of image حسب ال Id
-    cb(null, `${req.user.id}`);
-  },
-});
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     // (null حسب الدوكيمنتيشنو, "path of folder will download  inside him files")
+//     cb(null, "public/images");
+//   },
+//   filename: (req, file, cb) => {
+//     // name of image حسب ال Id
+//     cb(null, `${req.user.id}`);
+//   },
+// });
 
 cloudinary.config({
   cloud_name: "dd7rsqyuk",
@@ -57,6 +57,7 @@ cloudinary.config({
   api_secret: "DZmio_UZsuySISdxnWwQUXM7xL8",
 });
 
-const upload = multer({ storage: storage }).single("file");
+// const upload = multer({ storage: storage }).single("file");
 
-module.exports = { auth, upload, cloudinary };
+// module.exports = { auth, upload, cloudinary };
+module.exports = { auth, cloudinary };
