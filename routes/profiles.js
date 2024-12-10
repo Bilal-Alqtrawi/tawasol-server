@@ -1,5 +1,5 @@
 const express = require("express");
-const { auth, upload } = require("../utils/index");
+const { auth, cloudinary } = require("../utils/index");
 const router = express.Router();
 const { check, validationResult } = require("express-validator");
 const normalize = require("normalize-url");
@@ -158,23 +158,36 @@ router.delete("/", auth, async (req, res) => {
   }
 });
 
+// router.post("/upload", auth, async (req, res) => {
+//   try {
+//     console.log("inside upload");
+//     // multer give us this property for upload with 3 Params
+//     upload(req, res, async (err) => {
+//       if (err) {
+//         console.log("Error:" + err);
+//         res.status(500).send(`Server Error: ${err}`);
+//       } else {
+//         try {
+//           res.status(200).send(req.user.id);
+//         } catch (err) {
+//           console.log(err);
+//           res.status(500).send("Error while processing the image upload");
+//         }
+//       }
+//     });
+//   } catch (err) {
+//     console.error(err.message);
+//     res.status(500).send(err.message);
+//   }
+// });
+
 router.post("/upload", auth, async (req, res) => {
+  const file = req.files.image;
   try {
     console.log("inside upload");
-    // multer give us this property for upload with 3 Params
-    upload(req, res, async (err) => {
-      if (err) {
-        console.log("Error:" + err);
-        res.status(500).send(`Server Error: ${err}`);
-      } else {
-        try {
-          res.status(200).send(req.user.id);
-        } catch (err) {
-          console.log(err);
-          res.status(500).send("Error while processing the image upload");
-        }
-      }
-    });
+
+    const result = await cloudinary.uploader.upload(file.path);
+    res.status(200).json({ url: result.secure_url });
   } catch (err) {
     console.error(err.message);
     res.status(500).send(err.message);

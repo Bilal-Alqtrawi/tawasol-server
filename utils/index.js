@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const config = require("config");
 const multer = require("multer");
+const cloudinary = require("cloudinary").v2;
 
 // to save data in server from client when he sent it
 
@@ -50,6 +51,12 @@ const storage = multer.diskStorage({
   },
 });
 
+cloudinary.config({
+  cloud_name: "dd7rsqyuk",
+  api_key: "126337556379524",
+  api_secret: "DZmio_UZsuySISdxnWwQUXM7xL8",
+});
+
 const upload = multer({ storage: storage }).single("file");
 
-module.exports = { auth, upload };
+module.exports = { auth, upload, cloudinary };
