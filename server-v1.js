@@ -1,6 +1,3 @@
-const dotenv = require("dotenv").config();
-const fs = require("fs");
-const path = require("path");
 const cors = require("cors"); // Library allow to access to server side from another out of server side
 const express = require("express");
 const connectDB = require("./config/db");
@@ -16,10 +13,6 @@ app.use("/api/posts", require("./routes/posts.js"));
 connectDB();
 
 app.use(express.static(__dirname + "/public"));
-
-// Ensure uploads folder exists
-const uploadsDir = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
 
 // http://localhost:5000/api/users/createUser
 // Explain: /api/users/ => main Url and every thing after that will read it from file who required it

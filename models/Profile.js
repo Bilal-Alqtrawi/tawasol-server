@@ -28,6 +28,10 @@ const ProfileSchema = new mongoose.Schema({
   bio: {
     type: String,
   },
+  image: {
+    type: String,
+    default: "default.png",
+  },
   experience: [
     {
       title: {
@@ -107,14 +111,10 @@ const ProfileSchema = new mongoose.Schema({
       type: String,
     },
   },
-  image: {
-    type: String,
-    default: "default.png",
-  },
   date: {
     type: Date,
     default: Date.now,
   },
 });
 
-module.exports = mongoose.model("profile", ProfileSchema);
+module.exports = Profile = mongoose.model("profile", ProfileSchema);

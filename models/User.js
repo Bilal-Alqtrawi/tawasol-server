@@ -25,4 +25,4 @@ const UserSchema = new mongoose.Schema({
 });
 
 // Name Of Collection and the Schema
-module.exports = mongoose.model("user", UserSchema);
+module.exports = User = mongoose.model("user", UserSchema);

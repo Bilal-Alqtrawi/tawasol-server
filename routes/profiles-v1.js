@@ -1,10 +1,5 @@
 const express = require("express");
-const {
-  auth,
-  upload,
-  cloudinary,
-  uploadToCloudinary,
-} = require("../utils/index");
+const { auth, upload } = require("../utils/index");
 const router = express.Router();
 const { check, validationResult } = require("express-validator");
 const normalize = require("normalize-url");
@@ -37,6 +32,17 @@ router.post(
         errors: errors.array(),
       });
     }
+    /* 
+    "company": "BILAL",
+    "status": "Junior Developer",
+    "skills": "HTML", "CSS", "PHP", "JAVASCRIPT",
+    "website": "mywebsite.com",
+    "location": "Gaza",
+    "bio": "I am a software engineer and studied in the Al-Azher unviersity"
+    "youtube": "",
+    "twitter": "",
+    "github": "",
+    */
     const {
       website,
       skills,
@@ -46,7 +52,6 @@ router.post(
       linkedin,
       facebook,
       github,
-      name,
       ...rest
     } = req.body;
 
@@ -78,19 +83,13 @@ router.post(
     }
     profile.social = socialFields;
     try {
-      if (name) {
-        await User.findOneAndUpdate(
-          { _id: req.user.id },
-          { $set: { name } },
-          { new: true }
-        );
-      }
-
+      // (filter, object u want edit it in DB,{ new => if true mean after edit return new info to client, upsert: true => if profile not exist , will create profile} )
+      //   $set: profile to sent object to DB
       let profileObject = await Profile.findOneAndUpdate(
         { user: req.user.id },
         { $set: profile },
         { new: true, upsert: true }
-      ).populate("user", ["name"]);
+      );
       return res.json(profileObject);
     } catch (err) {
       console.error(err.message);
@@ -116,6 +115,7 @@ router.get("/me", auth, async (req, res) => {
 
 router.get("/", auth, async (req, res) => {
   try {
+    // without filter he return all data in profile collection
     const profiles = await Profile.find().populate("user", ["name"]);
     res.json(profiles);
   } catch (err) {
@@ -124,6 +124,7 @@ router.get("/", auth, async (req, res) => {
   }
 });
 
+// "/user/:user_id" Recive parameter after user
 router.get("/user/:user_id", auth, async (req, res) => {
   try {
     const profile = await Profile.findOne({
@@ -143,6 +144,7 @@ router.get("/user/:user_id", auth, async (req, res) => {
 });
 
 router.delete("/", auth, async (req, res) => {
+  // Remove posts, profile, user
   try {
     await Promise.all([
       Post.deleteMany({ user: req.user.id }), // delete all posts for this user
@@ -158,44 +160,33 @@ router.delete("/", auth, async (req, res) => {
 
 router.post("/upload", auth, async (req, res) => {
   try {
+    console.log("inside upload");
     upload(req, res, async (err) => {
       if (err) {
-        console.log("Multer Error:", err);
-        return res.status(500).json({ msg: "File upload failed" });
-      }
+        console.log("Error:" + err);
+        res.status(500).send(`Server Error: ${err}`);
+      } else {
+        try {
+          let profile = await Profile.findOne({ user: req.user.id });
 
-      if (!req.file) {
-        return res.status(400).json({ msg: "No file uploaded" });
-      }
+          if (!profile) {
+            return res.status(404).json({ msg: "Profile not found" });
+          }
 
-      try {
-        const imageUrl = await uploadToCloudinary(req.file.path);
+          profile.image = req.file.filename;
 
-        let profile = await Profile.findOne({ user: req.user.id });
-        if (profile) {
-          profile.image = imageUrl;
           await profile.save();
-          return res.json(profile);
-        } else {
-          return res.json({ image: imageUrl });
+
+          res.json(profile);
+          // res.status(200).send(req.user.id);
+        } catch (err) {
+          console.log(err);
         }
-
-        // if (!profile) {
-        //   return res.status(404).json({ msg: "Profile not found" });
-        // }
-
-        // profile.image = imageUrl;
-        // await profile.save();
-
-        // res.json(profile);
-      } catch (err) {
-        console.error("Cloudinary Error:", err.message);
-        res.status(500).json({ msg: "Image upload failed" });
       }
     });
   } catch (err) {
     console.error(err.message);
-    res.status(500).json({ msg: "Server error" });
+    res.status(500).send(`Server Error: ${err}`);
   }
 });
 

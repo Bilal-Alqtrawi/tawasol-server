@@ -1,21 +1,23 @@
 const jwt = require("jsonwebtoken");
 const config = require("config");
-// const multer = require("multer");
+const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
+const path = require("path");
+const fs = require("fs");
 
-// to save data in server from client when he sent it
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const auth = (req, res, next) => {
-  // Get The Token From Reqest Header
-  //  client should  the header with same name when recive him
-  console.log("in auth before token");
   const token = req.header("x-auth-token");
-  console.log("token:" + token);
 
   if (!token) {
     return res
       .status(401)
-      .json({ msg: "Token Is Not Available, authornization denied" });
+      .json({ msg: "Token Is Not Available, authorization denied" });
   }
 
   try {
@@ -23,14 +25,10 @@ const auth = (req, res, next) => {
       if (error) {
         return res
           .status(401)
-          .json({ msg: "Token Is Not Valid, authornization denied" });
+          .json({ msg: "Token Is Not Valid, authorization denied" });
       } else {
-        console.log("inside else: ");
-        console.log("DECODED " + JSON.stringify(decoded.user));
         req.user = decoded.user;
         next();
-        // must call when create midlle where function
-        // To go to processing in next function
       }
     });
   } catch (err) {
@@ -39,25 +37,31 @@ const auth = (req, res, next) => {
   }
 };
 
-// To save file from client (dis=> file from client,)
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     // (null حسب الدوكيمنتيشنو, "path of folder will download  inside him files")
-//     cb(null, "public/images");
-//   },
-//   filename: (req, file, cb) => {
-//     // name of image حسب ال Id
-//     cb(null, `${req.user.id}`);
-//   },
-// });
-
-cloudinary.config({
-  cloud_name: "dd7rsqyuk",
-  api_key: "126337556379524",
-  api_secret: "DZmio_UZsuySISdxnWwQUXM7xL8",
+// Multer disk storage
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, "..", "uploads"));
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `${req.user.id}-${Date.now()}${ext}`);
+  },
 });
 
-// const upload = multer({ storage: storage }).single("file");
+const upload = multer({ storage }).single("file");
 
-// module.exports = { auth, upload, cloudinary };
-module.exports = { auth, cloudinary };
+const uploadToCloudinary = async (filePath) => {
+  try {
+    const result = await cloudinary.uploader.upload(filePath, {
+      folder: "profiles",
+    });
+
+    fs.unlinkSync(filePath);
+
+    return result.secure_url;
+  } catch (err) {
+    throw new Error("Cloudinary upload failed: " + err.message);
+  }
+};
+
+module.exports = { auth, upload, uploadToCloudinary };

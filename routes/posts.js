@@ -179,10 +179,11 @@ router.delete("/:id", auth, async (req, res) => {
         .json({ msg: "User is not authorized to remove this post" });
     }
     await post.deleteOne();
+
     res.json({ msg: "Post is removed" });
   } catch (err) {
     console.error(err.message);
-    return res.status(500).send(err.message);
+    return res.status(500).send("Server Error ", err.message);
   }
 });
 module.exports = router;
