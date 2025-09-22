@@ -52,12 +52,13 @@ const upload = multer({ storage }).single("file");
 
 const uploadToCloudinary = async (filePath) => {
   try {
-    const result = await cloudinary.uploader.upload(filePath, {
-      folder: "profiles",
-    });
-
-    fs.unlinkSync(filePath);
-
+    const result = await cloudinary.uploader.upload_stream(
+      { folder: "profiles" },
+      (error, result) => {
+        if (error) throw error;
+        return result;
+      }
+    );
     return result.secure_url;
   } catch (err) {
     throw new Error("Cloudinary upload failed: " + err.message);
