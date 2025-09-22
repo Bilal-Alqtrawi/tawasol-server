@@ -3,7 +3,7 @@ const config = require("config");
 const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const path = require("path");
-const fs = require("fs");
+// const fs = require("fs");
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -38,31 +38,32 @@ const auth = (req, res, next) => {
 };
 
 // Multer disk storage
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "..", "uploads"));
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${req.user.id}-${Date.now()}${ext}`);
-  },
-});
+
+const storage = multer.memoryStorage();
+
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, path.join(__dirname, "..", "uploads"));
+//   },
+//   filename: (req, file, cb) => {
+//     const ext = path.extname(file.originalname);
+//     cb(null, `${req.user.id}-${Date.now()}${ext}`);
+//   },
+// });
 
 const upload = multer({ storage }).single("file");
 
-const uploadToCloudinary = async (filePath) => {
-  try {
-    const result = await cloudinary.uploader.upload_stream(
+// Upload to Cloudinary using buffer
+const uploadToCloudinary = (fileBuffer) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
       { folder: "profiles" },
       (error, result) => {
-        if (error) throw error;
-        return result;
+        if (error) return reject(error);
+        resolve(result.secure_url);
       }
     );
-    return result.secure_url;
-  } catch (err) {
-    throw new Error("Cloudinary upload failed: " + err.message);
-  }
+    stream.end(fileBuffer);
+  });
 };
-
 module.exports = { auth, upload, uploadToCloudinary };

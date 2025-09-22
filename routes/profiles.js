@@ -169,8 +169,9 @@ router.post("/upload", auth, async (req, res) => {
       }
 
       try {
-        const imageUrl = await uploadToCloudinary(req.file.path);
-
+        // const imageUrl = await uploadToCloudinary(req.file.path);
+        const imageUrl = await uploadToCloudinary(req.file.buffer);
+        
         let profile = await Profile.findOne({ user: req.user.id });
         if (profile) {
           profile.image = imageUrl;
