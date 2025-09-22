@@ -156,6 +156,21 @@ router.delete("/", auth, async (req, res) => {
   }
 });
 
+router.get("/test-upload", async (req, res) => {
+  try {
+    const result = await cloudinary.uploader.upload(
+      "https://res.cloudinary.com/demo/image/upload/sample.jpg",
+      {
+        folder: "profiles",
+      }
+    );
+    res.json(result);
+  } catch (err) {
+    console.error("Cloudinary Test Error:", err);
+    res.status(500).json({ msg: "Cloudinary test failed", error: err.message });
+  }
+});
+
 router.post("/upload", auth, async (req, res) => {
   try {
     upload(req, res, async (err) => {
@@ -171,7 +186,7 @@ router.post("/upload", auth, async (req, res) => {
       try {
         // const imageUrl = await uploadToCloudinary(req.file.path);
         const imageUrl = await uploadToCloudinary(req.file.buffer);
-        
+
         let profile = await Profile.findOne({ user: req.user.id });
         if (profile) {
           profile.image = imageUrl;
